@@ -1,5 +1,4 @@
 const express = require('express');
-
 const router = express.Router()
 
 const listaPessoas = [{
@@ -33,18 +32,18 @@ router.get('/pessoas/:id', (req, res) =>{
 
 // adicionando um novo dado
 router.post('/pessoas', (req, res) => {
-    const dados = req.body
+    const dadosPessoas = req.body
 
     if (!dadosPessoas.nome || !dadosPessoas.idade || !dadosPessoas.email || dadosPessoas.telefone) {
         return res.status(400).json({ mensagem: "Nome, Idade, Email, Telefone tem que ser informados"})
     }
 
     const novaPessoa = {
-    id: listaPessoas.length + 1,
-    nome: dados.nome,
-    idade: dados.idade,
-    email: dados.email,
-    telefone: dados.telefone
+    id: Math.round(Math.random() * 500),
+    nome: dadosPessoas.nome,
+    idade: dadosPessoas.idade,
+    email: dadosPessoas.email,
+    telefone: dadosPessoas.telefone
     }
     listaPessoas.push (novaPessoa)
     return res.status(201).json({
@@ -55,28 +54,47 @@ router.post('/pessoas', (req, res) => {
 // atualizando os dados
 router.put('/pessoas/:id', (req, res) => {
     const id = req.params.id
-    const atualizandoPessoas = req.body
+    const atualizarPessoas = req.body
+
+    if (!atualizarPessoas.nome || !atualizarPessoas.idade || !atualizarPessoas.email || !atualizarPessoas.telefone) {
+        return res.status(400).json({ mensagem: "Nome, Idade, E-mail, Telefone tem que ser informados" })
+    }
 
     const index = listaPessoas.findIndex(pessoa => pessoa.id == id)
-    const novaPessoa = {
-    id: Number(id),
-    nome: atualizandoPessoas.nome,
-    idade: atualizandoPessoas.idade,
-    email: atualizandoPessoas.email,
-    telefone: atualizandoPessoas.telefone
+    
+    if (index == -1) {
+        return res.status(404).json({ mensagem: "Cadastro não Encontrado" })
     }
-    listaPessoas[index] = novaPessoa
-    res.json({mensagem : 'Atualizado com sucesso'})
+    
+    const novaPessoas = {
+    id: Number(id),
+    nome: atualizarPessoas.nome,
+    idade: atualizarPessoas.idade,
+    email: atualizarPessoas.email,
+    telefone: atualizarPessoas.telefone
+    }
+
+    listaPessoas[index] = novaPessoas
+
+    return res.status(201).json({
+        mensagem: "Cadastro Atualizado com Sucesso!",
+        novaPessoas
+    })
+
 })
 
 router.delete('/pessoas/:id', (req, res) =>{
     const id = req.params.id
     const index = listaPessoas.findIndex(pessoa => pessoa.id == id);
+    if (index == -1) {
+        return res.status(404).json({ mensagem: "Cadastro não Encontrado" })
+    }
+
     listaPessoas.splice(index, 1)
-    res.json({mensagem: 'Deletado com sucesso'})
+    return res.status(201).json({
+        mensagem: " Cadastro Excluido com Sucesso!"
+    })
 })
-
-
 
 
 module.exports = router
